@@ -701,6 +701,12 @@ The size of the handler is the point. When the intent is known, the action is sm
 
 The LLM is still there. It handles everything the patterns do not cover — open-ended questions, creative requests, ambiguous input. But for the commands that matter, the commands where getting it wrong has real consequences, the LLM never touches them.
 
+### Hardware Instantiation
+
+The `.patterns` and `_nlp.json` files are already structured as read-only specifications — loaded at startup, never modified at runtime. The natural extension is burning them to physical media: ROM chips, EEPROM, or cartridge-style cards where the pattern set and protocol definitions are hardcoded and non-writable. Slot in `surgical.chip` and the device speaks operating room commands. Slot in `tactical.chip` and it speaks battlefield protocols. The host system calls `parse()` as normal — it has no knowledge of what is on the chip, just the interface. The skill definition is physically isolated from the execution environment.
+
+This gives you properties that software alone cannot: no filesystem, no writable memory, no runtime pattern injection, no network required, no attack surface for the pattern layer. The pattern set cannot be patched, updated, or compromised after manufacture. The domain is swappable without exposing or modifying the host system. The immutability is not a limitation — it is the feature. A deterministic parser running off a hardcoded chip in a medical device or military command interface is a specification frozen in hardware.
+
 ## Target Audience
 
 Linguists and NLP researchers who understand constituency trees, dependency relations, and POS tags. You can run commands and follow instructions, but you should not have to debug import errors or port conflicts. PARSELY-DIP tells you what's wrong and how to fix it.
