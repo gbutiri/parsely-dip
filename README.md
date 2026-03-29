@@ -707,6 +707,8 @@ Linguists and NLP researchers who understand constituency trees, dependency rela
 
 ## Status
 
+v0.0.2 — Visual constituency tree display in interactive mode. Expanded documentation with NLP vs RegEx tradeoff analysis, parse tree examples, slot-based matching, and domain-specific skill file architecture. Proprietary license aligned with python-tapestry. GitHub repository live.
+
 v0.0.1 — Core engine built. RegEx pipeline working with time, weather, and scrum card intents. NLP layer ported from Uni with Stanza service (default_accurate with Electra Large transformer, GPU accelerated). Hook integration tested with Claude Code. CLI available via `parsely` command.
 
 ## License
