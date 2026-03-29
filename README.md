@@ -432,40 +432,40 @@ The `tell_day` intent demonstrates the full power of the three-tier pipeline wit
 Today is Sunday, March 29, 2026.
 
 >>> what day will it be tomorrow
-tomorrow is Monday, March 30, 2026.
+Tomorrow will be Monday, March 30, 2026.
 
 >>> what day will it be in three days
-in 3 days is Wednesday, April 01, 2026.
+in 3 days it will be Wednesday, April 01, 2026.
 
 >>> what day is April Fools
-April Fool's Day is Wednesday, April 01, 2026.
+April Fool's Day will be Wednesday, April 01, 2026.
 
 >>> what day is on 4/1
-4/1/2026 is Wednesday, April 01, 2026.
+4/1/2026 will be Wednesday, April 01, 2026.
 
 >>> when is easter
-Easter is Sunday, April 05, 2026.
+Easter will be Sunday, April 05, 2026.
 
 >>> when is thanksgiving
-Thanksgiving is Thursday, November 26, 2026.
+Thanksgiving will be Thursday, November 26, 2026.
 
 >>> when is the next 4th of July
-Independence Day is Saturday, July 04, 2026.
+Independence Day will be Saturday, July 04, 2026.
 
 >>> when is mothers day
-Mother's Day is Sunday, May 10, 2026.
+Mother's Day will be Sunday, May 10, 2026.
 
 >>> when is mlk day
 Martin Luther King Jr. Day was Monday, January 19, 2026.
 
 >>> what day is christmas
-Christmas Day is Friday, December 25, 2026.
+Christmas Day will be Friday, December 25, 2026.
 
 >>> what day is memorial day
-Memorial Day is Monday, May 25, 2026.
+Memorial Day will be Monday, May 25, 2026.
 
 >>> what day is labor day
-Labor Day is Monday, September 07, 2026.
+Labor Day will be Monday, September 07, 2026.
 ```
 
 ### How It Works
