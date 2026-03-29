@@ -1,0 +1,62 @@
+"""Regex pattern matching engine.
+
+Loads .patterns files and matches user input against them.
+Pattern file format: one pattern per line
+    (regex) => intent_name
+    # comments and blank lines ignored
+"""
+
+import re
+from pathlib import Path
+
+
+def load_patterns(pattern_file):
+    """Load regex patterns from a .patterns file.
+
+    Args:
+        pattern_file: Path to .patterns file
+
+    Returns:
+        list of (compiled_regex, intent_name) tuples
+    """
+    patterns = []
+    path = Path(pattern_file)
+
+    if not path.exists():
+        return patterns
+
+    for line in path.read_text().splitlines():
+        line = line.strip()
+        if not line or line.startswith('#'):
+            continue
+
+        parts = line.split('=>')
+        if len(parts) != 2:
+            continue
+
+        regex_str = parts[0].strip()
+        intent_name = parts[1].strip()
+
+        try:
+            compiled = re.compile(regex_str, re.IGNORECASE)
+            patterns.append((compiled, intent_name))
+        except re.error as e:
+            print(f"PARSELY regex error in '{regex_str}': {e}")
+
+    return patterns
+
+
+def check_regex(user_input, patterns):
+    """Match user input against loaded regex patterns.
+
+    Args:
+        user_input: raw user text
+        patterns: list of (compiled_regex, intent_name) from load_patterns()
+
+    Returns:
+        intent_name string or None
+    """
+    for compiled, intent_name in patterns:
+        if compiled.match(user_input.strip()):
+            return intent_name
+    return None

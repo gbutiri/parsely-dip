@@ -1,0 +1,33 @@
+# Virtual environment
+env_parselydip/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Environment
+.env
+
+# IDE
+.vscode/
+.idea/
+
+# Database
+db/*.db
+
+# Logs
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build
+*.whl
+
+# Claude Code
+.claude/

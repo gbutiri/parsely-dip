@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "parsely-dip"
+version = "0.0.1"
+description = "PARSELY-DIP: Deterministic Intent Parser — RegEx and NLP pipeline for intent recognition"
+readme = "README.md"
+license = {text = "Proprietary"}
+requires-python = ">=3.9"
+authors = [
+    {name = "George Butiri", email = "george@iseestudios.com"}
+]
+dependencies = [
+    "stanza>=1.5",
+    "requests>=2.28",
+    "python-dotenv>=1.0",
+    "flask>=3.0",
+]
+keywords = ["nlp", "intent", "parser", "deterministic", "regex"]
+classifiers = [
+    "Development Status :: 1 - Planning",
+    "License :: Other/Proprietary License",
+    "Programming Language :: Python :: 3",
+    "Topic :: Text Processing :: Linguistic",
+]
+
+[project.scripts]
+parsely = "parsely_dip.cli.main:cli"
+
+[project.urls]
+Homepage = "https://github.com/gbutiri/parsely-dip"

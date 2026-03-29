@@ -1,0 +1,62 @@
+[
+  {
+    "intent": "tell_time",
+    "nlp": {
+      "sentence_type": ["SBARQ", "SQ", "WHNP"],
+      "words": [
+        {"word": "what", "pos": "DET", "dep": "det", "required": true},
+        {"lemma": "time", "pos": "NOUN", "required": true},
+        {"lemma": "be", "pos": "AUX", "dep": "cop", "required": true},
+        {"word": "it", "pos": "PRON", "dep": "nsubj", "required": true}
+      ]
+    }
+  },
+  {
+    "intent": "tell_time",
+    "nlp": {
+      "sentence_type": ["SBARQ", "SQ", "WHNP"],
+      "words": [
+        {"lemma": "what", "pos": ["PRON", "DET"], "required": true},
+        {"word": "the", "pos": "DET", "dep": "det", "required": true},
+        {"lemma": "time", "pos": "NOUN", "required": true},
+        {"lemma": "be", "pos": "AUX", "dep": "cop", "required": true}
+      ]
+    }
+  },
+  {
+    "intent": "tell_weather",
+    "nlp": {
+      "sentence_type": ["SBARQ", "SQ", "WHNP"],
+      "words": [
+        {"lemma": "what", "pos": "PRON", "dep": "root", "required": true},
+        {"lemma": "be", "pos": "AUX", "dep": "cop", "required": true},
+        {"word": "the", "pos": "DET", "dep": "det", "required": true},
+        {"lemma": "weather", "pos": "NOUN", "dep": "nsubj", "required": true}
+      ]
+    }
+  },
+  {
+    "intent": "tell_weather",
+    "nlp": {
+      "sentence_type": ["SBARQ", "SQ", "WHNP"],
+      "words": [
+        {"lemma": "what", "pos": "PRON", "dep": "root", "required": true},
+        {"lemma": "be", "pos": "AUX", "dep": "cop", "required": true},
+        {"word": "the", "pos": "DET", "dep": "det", "required": true},
+        {"lemma": "forecast", "pos": "NOUN", "dep": "nsubj", "required": true}
+      ]
+    }
+  },
+  {
+    "intent": "tell_weather",
+    "nlp": {
+      "sentence_type": ["SBARQ", "SQ", "WHNP"],
+      "words": [
+        {"lemma": "what", "pos": "PRON", "dep": "root", "required": true},
+        {"lemma": "be", "pos": "AUX", "dep": "cop", "required": true},
+        {"word": "the", "pos": "DET", "dep": "det", "required": true},
+        {"lemma": "temperature", "pos": "NOUN", "dep": "nsubj", "required": true}
+      ]
+    }
+  }
+]
