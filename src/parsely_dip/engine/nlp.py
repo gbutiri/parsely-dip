@@ -135,9 +135,15 @@ def check_nlp(user_input, patterns, stanza_url=None):
             for pattern in patterns:
                 nlp_spec = pattern.get('nlp', pattern)
                 if match_nlp_pattern(sentence, nlp_spec):
-                    return pattern.get('intent')
+                    match_data = {
+                        'words': sentence.get('words', []),
+                        'constituency': sentence.get('constituency', {}),
+                        'raw_input': user_input.strip(),
+                        'source': 'nlp'
+                    }
+                    return pattern.get('intent'), match_data
 
     except requests.exceptions.RequestException:
         pass
 
-    return None
+    return None, None

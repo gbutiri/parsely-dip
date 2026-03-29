@@ -21,10 +21,22 @@ def intent(intent_name):
     return decorator
 
 
-def dispatch(intent_name):
-    """Dispatch to registered handler. Returns response string or None."""
+def dispatch(intent_name, context=None):
+    """Dispatch to registered handler with optional context data.
+
+    Args:
+        intent_name: registered intent name
+        context: dict from regex match or NLP parse (passed to handler if it accepts it)
+
+    Returns:
+        response string or None
+    """
     handler = INTENT_REGISTRY.get(intent_name)
     if handler:
+        import inspect
+        sig = inspect.signature(handler)
+        if sig.parameters:
+            return handler(context)
         return handler()
     return None
 

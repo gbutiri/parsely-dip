@@ -10,6 +10,16 @@
 (excuse\s+me,?\s+|hey,?\s+|ok,?\s+|sorry,?\s+|pardon\s+me,?\s+)?do\s+you\s+(know\s+what\s+time\s+it\s+is|have\s+the\s+time)\?? => tell_time
 (excuse\s+me,?\s+|hey,?\s+|ok,?\s+|sorry,?\s+|pardon\s+me,?\s+)?(have\s+you\s+got\s+the\s+time|may\s+i\s+have\s+the\s+time)\?? => tell_time
 
+# intents/time.py — ability check
+(can|could)\s+you\s+tell(\s+me)?\s+(the\s+)?time\?? => check_ability_time
+(are\s+you\s+able\s+to)\s+tell(\s+me)?\s+(the\s+)?time\?? => check_ability_time
+
+# intents/day.py
+what\s+day\s+is\s+it(\s+today)?\?? => tell_day
+what('s|\s+is)\s+today('s)?\s+day\?? => tell_day
+what('s|\s+is)\s+the\s+day(\s+today)?\?? => tell_day
+what\s+day\s+is\s+today\?? => tell_day
+
 # intents/weather.py
 ((what|how)('s|\s+is)\s+the\s+weather(\s+like)?)\?? => tell_weather
 

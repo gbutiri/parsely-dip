@@ -359,11 +359,13 @@ def debug_parse():
     for sentence in doc.sentences:
         words = []
         for word in sentence.words:
+            head_text = sentence.words[word.head - 1].text if word.head > 0 else "ROOT"
             words.append({
                 "text": word.text,
                 "pos": word.upos,
                 "lemma": word.lemma,
-                "dep": word.deprel
+                "dep": word.deprel,
+                "head": head_text
             })
 
         # Get enriched constituency tree with word details
@@ -373,6 +375,7 @@ def debug_parse():
             "sentence": sentence.text,
             "words": words,
             "constituency_tree": str(sentence.constituency),
+            "visual_tree": format_tree_visual(sentence.constituency),
             "enriched_tree": enriched_tree
         })
 

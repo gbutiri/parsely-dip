@@ -54,9 +54,17 @@ def check_regex(user_input, patterns):
         patterns: list of (compiled_regex, intent_name) from load_patterns()
 
     Returns:
-        intent_name string or None
+        tuple: (intent_name, match_data) or (None, None)
+        match_data is a dict with 'groups', 'full_match', and 'raw_input'
     """
     for compiled, intent_name in patterns:
-        if compiled.match(user_input.strip()):
-            return intent_name
-    return None
+        match = compiled.match(user_input.strip())
+        if match:
+            match_data = {
+                'full_match': match.group(0),
+                'groups': match.groups(),
+                'raw_input': user_input.strip(),
+                'source': 'regex'
+            }
+            return intent_name, match_data
+    return None, None

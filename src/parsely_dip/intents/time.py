@@ -4,7 +4,7 @@ Returns current time in natural language.
 """
 
 from datetime import datetime
-from parsely_dip.engine.registry import intent
+from parsely_dip.engine.registry import intent, INTENT_REGISTRY
 
 
 def format_natural_time():
@@ -17,3 +17,17 @@ def format_natural_time():
 def tell_time():
     """Returns current time."""
     return format_natural_time()
+
+
+@intent('check_ability_time')
+def check_ability_time():
+    """Responds to 'can you tell me the time?' — an ability check, not a time request."""
+    handler = INTENT_REGISTRY.get('tell_time')
+    if handler:
+        try:
+            result = handler()
+            if result:
+                return "Yes, just ask 'what time is it?' or 'what's the time?'"
+        except Exception:
+            pass
+    return "Sorry, I can't do that right now."

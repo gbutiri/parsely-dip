@@ -372,6 +372,8 @@ def tell_time():
 | Intent | File | What It Does |
 |--------|------|-------------|
 | `tell_time` | `intents/time.py` | Returns current time in 24-hour format |
+| `check_ability_time` | `intents/time.py` | Ability check — verifies `tell_time` handler exists and works, responds with usage hint |
+| `tell_day` | `intents/day.py` | Returns day of the week for any date — today, relative dates, holidays (fixed and moving), numeric dates |
 | `tell_weather` | `intents/weather.py` | Returns weather via OpenWeatherMap API (requires `WEATHER_API_KEY` in `.env`) |
 | `show_current_card` | `intents/scrum.py` | Shows active scrum cards from SQLite database |
 | `read_current_card` | `intents/scrum.py` | Same data as show, but intended for LLM to summarize |
@@ -406,7 +408,8 @@ parsely-dip/
       stanza_service.py    — Stanza NLP Flask service (port 5013)
     intents/
       __init__.py           — Auto-imports all intent modules
-      time.py               — tell_time handler
+      time.py               — tell_time, check_ability_time handlers
+      day.py                — tell_day handler (holidays, relative dates, moving holidays)
       weather.py            — tell_weather handler (OpenWeatherMap API)
       scrum.py              — show_current_card, read_current_card handlers
     patterns/
@@ -415,6 +418,138 @@ parsely-dip/
     cli/
       __init__.py           — CLI entry point (future)
 ```
+
+---
+
+## Showcase: The `tell_day` Intent
+
+The `tell_day` intent demonstrates the full power of the three-tier pipeline with dynamic parameter passing. One handler answers 15+ question forms — from simple regex catches to complex NLP-parsed queries with moving holiday calculators.
+
+### What It Handles
+
+```
+>>> what day is it
+Today is Sunday, March 29, 2026.
+
+>>> what day will it be tomorrow
+tomorrow is Monday, March 30, 2026.
+
+>>> what day will it be in three days
+in 3 days is Wednesday, April 01, 2026.
+
+>>> what day is April Fools
+April Fool's Day is Wednesday, April 01, 2026.
+
+>>> what day is on 4/1
+4/1/2026 is Wednesday, April 01, 2026.
+
+>>> when is easter
+Easter is Sunday, April 05, 2026.
+
+>>> when is thanksgiving
+Thanksgiving is Thursday, November 26, 2026.
+
+>>> when is the next 4th of July
+Independence Day is Saturday, July 04, 2026.
+
+>>> when is mothers day
+Mother's Day is Sunday, May 10, 2026.
+
+>>> when is mlk day
+Martin Luther King Jr. Day was Monday, January 19, 2026.
+
+>>> what day is christmas
+Christmas Day is Friday, December 25, 2026.
+
+>>> what day is memorial day
+Memorial Day is Monday, May 25, 2026.
+
+>>> what day is labor day
+Labor Day is Monday, September 07, 2026.
+```
+
+### How It Works
+
+**Layer 1 (RegEx)** catches the simplest forms in microseconds:
+
+```
+what\s+day\s+is\s+it(\s+today)?\?? => tell_day
+what('s|\s+is)\s+today('s)?\s+day\?? => tell_day
+```
+
+These fire without the Stanza service. No NLP needed. The handler receives no context and returns today's date.
+
+**Layer 2 (NLP)** catches everything else. Three patterns cover all the complex forms:
+
+```json
+{"sentence_type": ["SBARQ", "SBAR"], "words": [
+    {"lemma": "what", "dep": "det"}, {"lemma": "day", "dep": "nsubj"}, {"lemma": "be", "dep": "cop"}
+]}
+```
+
+This matches "what day is [X]" — holidays, dates, any noun phrase after the copula.
+
+```json
+{"sentence_type": ["SBARQ", "SBAR"], "words": [
+    {"lemma": "what", "dep": "det"}, {"lemma": "day", "dep": "root"}, {"lemma": "be", "dep": ["cop", "aux"]}
+]}
+```
+
+This matches "what day will it be [X]" — future tense with relative dates, "in three days", "tomorrow".
+
+```json
+{"sentence_type": "SBARQ", "words": [
+    {"lemma": "when", "dep": ["root", "advmod"]}, {"lemma": "be", "dep": "cop"}
+]}
+```
+
+This matches "when is [X]" — the broadest form. Catches any "when is easter", "when is the next thanksgiving", "when is christmas".
+
+**Dynamic Parameter Passing:** When the NLP layer matches, it passes the full parsed word list to the handler as a `context` dict. The handler's `extract_date_reference()` function reads the words, skips structural tokens (what, day, is, it, be, will, when, the), and assembles the remaining meaningful words into a date reference string. Written numerals are converted via `word2number` — "three" becomes `3`. The reference string is then resolved by `resolve_date()`.
+
+### Date Resolution
+
+The `resolve_date()` function handles six categories of date references:
+
+**Relative dates:** "today", "tomorrow", "yesterday" — simple offset from `datetime.now()`.
+
+**Relative offsets:** "in 3 days", "in five days" — parsed from "in N days" pattern, numerals converted via `word2number`.
+
+**Weekday names:** "wednesday", "next wednesday" — finds the next occurrence of that weekday.
+
+**Fixed holidays:** Christmas (Dec 25), Halloween (Oct 31), Independence Day (Jul 4), Valentine's Day (Feb 14), and 8 more — stored as `(month, day)` tuples with extensive aliases (xmas, 4th of july, april fools, etc.).
+
+**Moving holidays:** Computed per year, not stored:
+
+| Holiday | Algorithm |
+|---------|-----------|
+| Easter | Anonymous Gregorian computus |
+| Thanksgiving | 4th Thursday of November |
+| Memorial Day | Last Monday of May |
+| Labor Day | 1st Monday of September |
+| MLK Day | 3rd Monday of January |
+| Presidents Day | 3rd Monday of February |
+| Mother's Day | 2nd Sunday of May |
+| Father's Day | 3rd Sunday of June |
+| Columbus Day | 2nd Monday of October |
+
+**Numeric dates:** "4/1", "12-25", "4/1/2026" — parsed with `/` or `-` separator.
+
+**Ordinal patterns:** "4th of July", "1st of December" — regex extraction of day number + month name.
+
+### Tense and "Next" Handling
+
+The response uses correct tense based on whether the resolved date is in the past, present, or future:
+
+- Past: "Martin Luther King Jr. Day **was** Monday, January 19, 2026."
+- Present: "Christmas Day **is today**, Thursday, December 25, 2026."
+- Future: "Easter **is** Sunday, April 05, 2026."
+
+The "next" prefix (from "when is the **next** 4th of July") forces the date to roll forward to the next occurrence if the date has already passed this year.
+
+### The Handler
+
+All of this logic lives in one file — `intents/day.py`. The `@intent('tell_day')` handler is 10 lines. The rest is `resolve_date()` (40 lines), holiday data (30 lines), and the moving holiday calculators (50 lines). No LLM. No API calls. No token cost. Pure `datetime` arithmetic.
 
 ---
 
@@ -484,13 +619,33 @@ python -m parsely_dip.engine.stanza_service
 | `/process_syntactic_parsing` | POST | Parse text, return words with POS/dependency/constituency |
 | `/debug_parse` | POST | Raw parse data for debugging sentence structure |
 
-### Interactive Mode
+### CLI Commands
 
-```bash
-python -m parsely_dip.engine.stanza_service --chat
+All commands run through the `parsely` entry point:
+
+| Command | Description |
+|---------|-------------|
+| `parsely start` | Start the Stanza NLP service (foreground, Ctrl+C to stop) |
+| `parsely --chat` | Interactive chat — runs prompts through the full pipeline, shows responses |
+| `parsely --test` | Structure explorer — shows constituency trees, POS tags, dependency relations |
+| `parsely "prompt"` | Single query — returns response or "No match" |
+
+**`parsely start`** launches the Stanza NLP service on port 5013. Required for NLP pattern matching and `--test` mode. RegEx matching works without it.
+
+**`parsely --chat`** is the user-facing mode. Type a prompt, see the response. Patterns hot-reload from disk — edit a `.patterns` or `_nlp.json` file and the next query picks up the changes without restarting.
+
+```
+>>> could you please tell me the time
+  Yes, just ask 'what time is it?' or 'what's the time?'
+
+>>> what time is it?
+  06:12
+
+>>> hello there
+  [No match — would fall through to LLM]
 ```
 
-Opens an interactive prompt where you can type sentences and see their full parse structure — constituency trees (inline and visual), POS tags, and dependency relations. Useful for building new NLP patterns.
+**`parsely --test`** is the developer-facing mode. Type a sentence, see its full parse structure. Requires the service running (`parsely start` in another terminal).
 
 ```
 >>> What's your name?
@@ -524,6 +679,10 @@ Opens an interactive prompt where you can type sentences and see their full pars
   ?
 ```
 
+### Hot Reload
+
+Pattern files (`.patterns` and `_nlp.json`) are checked for changes on every `parse()` call by comparing file modification times. If a file was saved since the last load, patterns reload automatically. No service restart, no `--chat` restart — just save the file and type the next query.
+
 ### Security
 
 - Localhost only (127.0.0.1) — rejects non-local requests
@@ -555,6 +714,26 @@ NLP patterns define grammatical structures that map to intents. Unlike regex (ex
   }
 }
 ```
+
+### Example: Ability Check Pattern
+
+The `check_ability_time` pattern demonstrates modal verb + action verb + noun slot matching. It catches "can you tell me the time?", "could you please give me the time", "could you possibly show me the time" — all with one pattern:
+
+```json
+{
+  "intent": "check_ability_time",
+  "nlp": {
+    "sentence_type": "SQ",
+    "words": [
+      {"lemma": ["can", "could"], "pos": "AUX", "dep": "aux", "required": true},
+      {"lemma": ["tell", "give", "show", "get"], "pos": "VERB", "dep": "root", "required": true},
+      {"lemma": "time", "pos": "NOUN", "dep": "obj", "head_lemma": "tell", "required": true}
+    ]
+  }
+}
+```
+
+The pattern requires three things: a modal AUX (can/could), an action VERB (tell/give/show/get) as root, and the NOUN "time" as its object. Everything else — "you", "me", "the", "please", "possibly" — is not in the pattern and gets ignored. The sentence type SQ (yes/no question) distinguishes this from SBARQ (wh-question like "what time is it?"), which routes to `tell_time` instead.
 
 ### Matching Modes
 
@@ -595,6 +774,8 @@ dependencies = [
     "requests>=2.28",
     "python-dotenv>=1.0",
     "flask>=3.0",
+    "word2number>=1.1",
+    "num2words>=0.5",
 ]
 ```
 
@@ -655,6 +836,16 @@ No token cost. No latency. No hallucination. No "I think it might be around 3pm.
 
 An LLM asked the same question will spend tokens reasoning about timezone preferences, 12-hour vs 24-hour format, whether you meant wall clock or elapsed time, and may still get it wrong. The handler calls `datetime.now()` and returns the answer. The LLM never sees the question.
 
+### Why Not Just Ask the LLM?
+
+During development of PARSELY-DIP, we asked an LLM: "If Wednesday is the 1st, what day is Thursday?" It confidently answered "the 3rd." When corrected, it apologized and said "the 2nd." When asked why it originally said the 3rd, it replied: "Probably because Thursday and Three both start with TH."
+
+This is not a joke. This happened. The LLM could not reliably add 1 to 1.
+
+Meanwhile, PARSELY-DIP's `tell_day` handler answers "what day will it be tomorrow" by calling `datetime.now() + timedelta(days=1)`. It does not reason about calendar math. It does not guess. It computes. The answer is correct every time, including for moving holidays like Easter (Anonymous Gregorian algorithm), Thanksgiving (4th Thursday of November), and Memorial Day (last Monday of May) — calculations that LLMs routinely get wrong because they are doing language prediction, not arithmetic.
+
+An LLM answering "when is Easter" takes 1-3 seconds, costs tokens, and has a measurable chance of returning the wrong date. PARSELY-DIP answers in under 100ms, costs nothing, and the math is provably correct.
+
 ### Domain-Specific Skill Files
 
 The patterns loaded into PARSELY-DIP define the domain. The same engine serves completely different environments by swapping which `.patterns` and `_nlp.json` files are loaded.
@@ -712,6 +903,8 @@ This gives you properties that software alone cannot: no filesystem, no writable
 Linguists and NLP researchers who understand constituency trees, dependency relations, and POS tags. You can run commands and follow instructions, but you should not have to debug import errors or port conflicts. PARSELY-DIP tells you what's wrong and how to fix it.
 
 ## Status
+
+v0.0.3 — Dynamic parameter passing from both regex and NLP layers to intent handlers via context dict. `tell_day` intent with full date resolution: relative dates (tomorrow, in 3 days), fixed holidays (Christmas, Halloween, Veterans Day), moving holidays with calculators (Easter computus, Thanksgiving, Memorial Day, Labor Day, MLK Day, Mother's Day, Father's Day, Columbus Day, Presidents Day), numeric dates (4/1), weekday names, ordinal patterns (4th of July), "next" prefix for future occurrence, and correct past/present/future tense in responses. `word2number` integration for written numerals ("three" to 3). `check_ability_time` ability-check intent that verifies the target handler works before responding. CLI reorganized: `parsely start`, `parsely --chat` (pipeline testing), `parsely --test` (structure explorer). Hot-reload patterns from disk on every query via mtime check (no restart needed). NLP pattern for modal verb + action verb + noun slot matching. Visual constituency tree display. Expanded documentation with NLP vs RegEx tradeoff analysis, parse tree examples, slot-based matching, domain-specific skill files, and hardware instantiation vision. Proprietary license aligned with python-tapestry. GitHub repository live.
 
 v0.0.2 — Visual constituency tree display in interactive mode. Expanded documentation with NLP vs RegEx tradeoff analysis, parse tree examples, slot-based matching, and domain-specific skill file architecture. Proprietary license aligned with python-tapestry. GitHub repository live.
 

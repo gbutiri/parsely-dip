@@ -24,6 +24,49 @@
     }
   },
   {
+    "intent": "check_ability_time",
+    "nlp": {
+      "sentence_type": "SQ",
+      "words": [
+        {"lemma": ["can", "could"], "pos": "AUX", "dep": "aux", "required": true},
+        {"lemma": ["tell", "give", "show", "get"], "pos": "VERB", "dep": "root", "required": true},
+        {"lemma": "time", "pos": "NOUN", "dep": "obj", "head_lemma": "tell", "required": true}
+      ]
+    }
+  },
+  {
+    "intent": "tell_day",
+    "nlp": {
+      "sentence_type": ["SBARQ", "SBAR"],
+      "words": [
+        {"lemma": "what", "pos": "DET", "dep": "det", "required": true},
+        {"lemma": "day", "pos": "NOUN", "dep": "nsubj", "required": true},
+        {"lemma": "be", "pos": "AUX", "dep": "cop", "required": true}
+      ]
+    }
+  },
+  {
+    "intent": "tell_day",
+    "nlp": {
+      "sentence_type": ["SBARQ", "SBAR"],
+      "words": [
+        {"lemma": "what", "pos": "DET", "dep": "det", "required": true},
+        {"lemma": "day", "pos": "NOUN", "dep": "root", "required": true},
+        {"lemma": "be", "pos": "AUX", "dep": ["cop", "aux"], "required": true}
+      ]
+    }
+  },
+  {
+    "intent": "tell_day",
+    "nlp": {
+      "sentence_type": "SBARQ",
+      "words": [
+        {"lemma": "when", "pos": "ADV", "dep": ["root", "advmod"], "required": true},
+        {"lemma": "be", "pos": "AUX", "dep": "cop", "required": true}
+      ]
+    }
+  },
+  {
     "intent": "tell_weather",
     "nlp": {
       "sentence_type": ["SBARQ", "SQ", "WHNP"],
