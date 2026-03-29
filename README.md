@@ -846,6 +846,10 @@ Meanwhile, PARSELY-DIP's `tell_day` handler answers "what day will it be tomorro
 
 An LLM answering "when is Easter" takes 1-3 seconds, costs tokens, and has a measurable chance of returning the wrong date. PARSELY-DIP answers in under 100ms, costs nothing, and the math is provably correct.
 
+Later in the same session, the LLM assisting with development was asked to update completed task cards on the project board. It correctly marked the finished card as Done. Then, without being asked, it decided a second card "hadn't been worked on" and moved it out of the active column — overriding the developer's deliberate placement. A deterministic engine would have completed the matched action (update the finished card), noticed the remaining cards were outside the work scope, and asked what to do with them. The LLM assumed. The DI engine would have asked. That is the entire product thesis: deterministic systems execute what they match and stop. They do not extrapolate, infer, or helpfully override the user's intent.
+
+These are not hypothetical examples. Both incidents happened in real time during the development of this package — the calendar math error while discussing the release date, and the card-moving incident during the session wrap-up. The tool that was being built to prevent exactly these kinds of errors was itself being developed by a system that kept making them.
+
 ### Domain-Specific Skill Files
 
 The patterns loaded into PARSELY-DIP define the domain. The same engine serves completely different environments by swapping which `.patterns` and `_nlp.json` files are loaded.
