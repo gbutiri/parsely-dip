@@ -1,6 +1,6 @@
 """PARSELY-DIP: Parsing And RegEx Syntactic Engine with Linguistic Yield - Deterministic Intent Parser"""
 
-__version__ = "0.0.5"
+__version__ = "0.0.6"
 
 from pathlib import Path
 from parsely_dip.engine.regex import load_patterns, check_regex

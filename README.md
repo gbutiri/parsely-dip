@@ -763,8 +763,18 @@ Every NLP pattern must be maximally specific. Include all words that disambiguat
 
 ```
 WEATHER_API_KEY=your_openweathermap_key
-STANZA_API_TOKEN=optional_security_token
+STANZA_API_TOKEN=shared_secret_both_sides_use_this
 ```
+
+#### About `STANZA_API_TOKEN`
+
+The Stanza NLP service accepts an optional `X-Stanza-Token` header and — if `STANZA_API_TOKEN` is set in the service's environment — rejects requests whose header does not match. This keeps drive-by localhost scripts from hitting your running NLP service.
+
+**Starting in 0.0.6, parsely-dip reads the same `STANZA_API_TOKEN` env var from its own process and sends it as `X-Stanza-Token` on every Stanza request.** Both sides must have the same value. Practical implications:
+
+- **If your Stanza service has no token set:** do nothing. parsely-dip sends no header, service accepts the request, things work.
+- **If your Stanza service has a token set:** export the same value in the environment where you call `parse()` (or load your `.env` before importing parsely-dip). Without it, the NLP layer silently falls through to LLM/no-match on every request.
+- **If you run a web app that calls `parse()`:** make sure your app process inherits `STANZA_API_TOKEN` — it's not enough to have it in a file the app doesn't load.
 
 ### pyproject.toml Dependencies
 
