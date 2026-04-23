@@ -5,6 +5,7 @@ then matches against NLP pattern specs (JSON).
 """
 
 import json
+import os
 import requests
 from pathlib import Path
 
@@ -122,10 +123,16 @@ def check_nlp(user_input, patterns, stanza_url=None):
     """
     url = stanza_url or STANZA_URL
 
+    headers = {}
+    token = os.getenv("STANZA_API_TOKEN")
+    if token:
+        headers["X-Stanza-Token"] = token
+
     try:
         response = requests.post(
             url,
             json={"user_input": user_input},
+            headers=headers,
             timeout=5
         )
         response.raise_for_status()
