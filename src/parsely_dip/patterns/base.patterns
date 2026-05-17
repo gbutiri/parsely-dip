@@ -5,7 +5,7 @@
 # intents/time.py
 (excuse\s+me,?\s+|hey,?\s+|ok,?\s+|sorry,?\s+|pardon\s+me,?\s+)?what('s|\s+is)\s+the(\s+current)?\s+time(,?\s+please)?\?? => tell_time
 (excuse\s+me,?\s+|hey,?\s+|ok,?\s+|sorry,?\s+|pardon\s+me,?\s+)?what\s+time\s+is\s+it(\s+now|\s+right\s+now|\s+currently)?(,?\s+please)?\?? => tell_time
-(time|current\s+time)(,?\s+please)?\?? => tell_time
+(time|current\s+time)(,?\s+please)?\??$ => tell_time
 (excuse\s+me,?\s+|hey,?\s+|ok,?\s+|sorry,?\s+|pardon\s+me,?\s+)?(tell|give)\s+me\s+the\s+time(\s+now|\s+right\s+now|\s+please)?\?? => tell_time
 (excuse\s+me,?\s+|hey,?\s+|ok,?\s+|sorry,?\s+|pardon\s+me,?\s+)?do\s+you\s+(know\s+what\s+time\s+it\s+is|have\s+the\s+time)\?? => tell_time
 (excuse\s+me,?\s+|hey,?\s+|ok,?\s+|sorry,?\s+|pardon\s+me,?\s+)?(have\s+you\s+got\s+the\s+time|may\s+i\s+have\s+the\s+time)\?? => tell_time
