@@ -158,6 +158,10 @@ def restrict_access():
     1. Source IP must be 127.0.0.1 (localhost only)
     2. X-Stanza-Token header must match STANZA_API_TOKEN
 
+    /health bypasses the token check (still localhost-only) so external
+    orchestrators (bibliotech Claudecast, unibot service-bar /start?wait=true)
+    can confirm liveness without storing the token. No data exposed.
+
     Returns:
         None: Allows request to continue if valid
         tuple: (error_json, 403) if validation fails
@@ -166,10 +170,20 @@ def restrict_access():
     if request.remote_addr != '127.0.0.1':
         return jsonify({"error": "Access denied: Invalid source IP"}), 403
 
+    # Public health endpoint — no token required
+    if request.path == '/health':
+        return None
+
     # Verify token
     token = request.headers.get('X-Stanza-Token')
     if token != STANZA_API_TOKEN:
         return jsonify({"error": "Access denied: Invalid token"}), 403
+
+
+@app.route('/health', methods=['GET'])
+def health():
+    """Liveness check — returns 200 when the service is up. Public (no token)."""
+    return jsonify({"status": "ok", "service": "parsely-dip stanza"}), 200
 
 
 def tree_to_json_with_all_info(tree, sentence, word_index=None):
