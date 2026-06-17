@@ -154,30 +154,21 @@ def restrict_access():
     """
     Security middleware to restrict API access
 
-    Validates all incoming requests before processing:
-    1. Source IP must be 127.0.0.1 (localhost only)
-    2. X-Stanza-Token header must match STANZA_API_TOKEN
+    Restrict API access to localhost only.
 
-    /health bypasses the token check (still localhost-only) so external
-    orchestrators (bibliotech Claudecast, unibot service-bar /start?wait=true)
-    can confirm liveness without storing the token. No data exposed.
+    Source IP must be 127.0.0.1. Token auth (X-Stanza-Token) was REMOVED
+    2026-06-17 (C#1070 / George): the service is localhost-bound, so the IP
+    check is sufficient, and the token gate caused recurring issues (e.g.
+    blocking /health) for no added security on a local-only service.
+    Re-add token auth only if this service is ever exposed beyond localhost.
 
     Returns:
-        None: Allows request to continue if valid
-        tuple: (error_json, 403) if validation fails
+        None: Allows request to continue.
+        tuple: (error_json, 403) if the source IP is not localhost.
     """
-    # Check source IP
+    # Check source IP (localhost only) -- the sole access control now
     if request.remote_addr != '127.0.0.1':
         return jsonify({"error": "Access denied: Invalid source IP"}), 403
-
-    # Public health endpoint — no token required
-    if request.path == '/health':
-        return None
-
-    # Verify token
-    token = request.headers.get('X-Stanza-Token')
-    if token != STANZA_API_TOKEN:
-        return jsonify({"error": "Access denied: Invalid token"}), 403
 
 
 @app.route('/health', methods=['GET'])
