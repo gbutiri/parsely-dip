@@ -1,0 +1,38 @@
+# check_ability_time test sentences
+# Format: sentence => intent | type | expected (1=match, 0=no match)
+
+# Regex positive
+Can you tell the time? => check_ability_time | regex | 1
+Can you tell me the time? => check_ability_time | regex | 1
+Could you tell me the time? => check_ability_time | regex | 1
+Could you tell the time? => check_ability_time | regex | 1
+Are you able to tell the time? => check_ability_time | regex | 1
+Are you able to tell me the time? => check_ability_time | regex | 1
+Can you tell me time? => check_ability_time | regex | 1
+Could you tell time? => check_ability_time | regex | 1
+
+# Regex negative
+Tell me the time => check_ability_time | regex | 0
+What time is it? => check_ability_time | regex | 0
+Can you tell me a story? => check_ability_time | regex | 0
+Can you tell me the weather? => check_ability_time | regex | 0
+You can tell time? => check_ability_time | regex | 0
+Are you able to tell me the date? => check_ability_time | regex | 0
+Would you tell me the time? => check_ability_time | regex | 0
+Will you tell me the time? => check_ability_time | regex | 0
+Do you know the time? => check_ability_time | regex | 0
+
+# NLP positive
+Can you tell me the time? => check_ability_time | nlp | 1
+Could you tell the time? => check_ability_time | nlp | 1
+Can you give me the time? => check_ability_time | nlp | 1
+Could you show me the time? => check_ability_time | nlp | 1
+Can you get me the time? => check_ability_time | nlp | 1
+
+# NLP negative
+Tell me the time => check_ability_time | nlp | 0
+What time is it? => check_ability_time | nlp | 0
+Can you tell me the date? => check_ability_time | nlp | 0
+Can you tell me a joke? => check_ability_time | nlp | 0
+Would you tell me the time? => check_ability_time | nlp | 0
+Will you tell me the time? => check_ability_time | nlp | 0

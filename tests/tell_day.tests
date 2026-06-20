@@ -1,0 +1,47 @@
+# tell_day test sentences
+# Format: sentence => intent | type | expected (1=match, 0=no match)
+
+# Regex positive
+What day is it? => tell_day | regex | 1
+What day is it today? => tell_day | regex | 1
+What's today's day? => tell_day | regex | 1
+What is today's day? => tell_day | regex | 1
+What's the day? => tell_day | regex | 1
+What is the day? => tell_day | regex | 1
+What's the day today? => tell_day | regex | 1
+What is the day today? => tell_day | regex | 1
+What day is today? => tell_day | regex | 1
+
+# Regex negative
+What day is tomorrow? => tell_day | regex | 0
+What day was yesterday? => tell_day | regex | 0
+What time is it? => tell_day | regex | 0
+What's the weather? => tell_day | regex | 0
+What day of the week is it? => tell_day | regex | 0
+Is today Monday? => tell_day | regex | 0
+What date is it? => tell_day | regex | 0
+Day? => tell_day | regex | 0
+What day is Easter? => tell_day | regex | 0
+What day is Thanksgiving? => tell_day | regex | 0
+When is Christmas? => tell_day | regex | 0
+
+# NLP positive
+What day is it? => tell_day | nlp | 1
+What day is it today? => tell_day | nlp | 1
+What day is today? => tell_day | nlp | 1
+What's the day? => tell_day | nlp | 1
+What is the day today? => tell_day | nlp | 1
+What day is Easter? => tell_day | nlp | 1
+What day is Thanksgiving? => tell_day | nlp | 1
+What day is Christmas? => tell_day | nlp | 1
+What day is Halloween? => tell_day | nlp | 1
+When is Easter? => tell_day | nlp | 1
+When is Thanksgiving? => tell_day | nlp | 1
+When is Memorial Day? => tell_day | nlp | 1
+
+# NLP negative
+What time is it? => tell_day | nlp | 0
+What's the weather? => tell_day | nlp | 0
+Is today Monday? => tell_day | nlp | 0
+Tell me the day => tell_day | nlp | 0
+What date is it? => tell_day | nlp | 0

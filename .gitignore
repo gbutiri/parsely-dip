@@ -28,6 +28,8 @@ Thumbs.db
 
 # Build
 *.whl
+# Stray per-version build/copy snapshots
+parsely_dip-*/
 
 # Claude Code
 .claude/

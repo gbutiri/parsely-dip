@@ -3,14 +3,33 @@
 Returns current time in natural language.
 """
 
+import random
 from datetime import datetime
 from parsely_dip.engine.registry import intent, INTENT_REGISTRY
 
 
+# Phrasings the answer is randomly drawn from. {t} = the 12-hour time (e.g. "8:49 PM").
+TIME_VARIATIONS = [
+    "It's {t}.",
+    "It's now {t}.",
+    "The time is {t}.",
+    "Right now it's {t}.",
+    "It's currently {t}.",
+    "{t} right now.",
+]
+
+
+def _human_time(now=None):
+    """12-hour clock with AM/PM, cross-platform (no %-I)."""
+    now = now or datetime.now()
+    hour12 = now.hour % 12 or 12
+    ampm = "AM" if now.hour < 12 else "PM"
+    return f"{hour12}:{now.minute:02d} {ampm}"
+
+
 def format_natural_time():
-    """Format current time in military (24-hour) format."""
-    now = datetime.now()
-    return f"{now.hour:02d}:{now.minute:02d}"
+    """Current time in a randomly-chosen human-readable phrasing."""
+    return random.choice(TIME_VARIATIONS).format(t=_human_time())
 
 
 @intent('tell_time')

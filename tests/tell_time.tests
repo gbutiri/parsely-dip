@@ -1,0 +1,50 @@
+# tell_time test sentences
+# Format: sentence => intent | type | expected (1=match, 0=no match)
+
+# Regex positive
+What's the time? => tell_time | regex | 1
+What is the time? => tell_time | regex | 1
+What's the current time? => tell_time | regex | 1
+What time is it? => tell_time | regex | 1
+What time is it right now? => tell_time | regex | 1
+What time is it now? => tell_time | regex | 1
+Excuse me, what's the time? => tell_time | regex | 1
+Sorry, what time is it? => tell_time | regex | 1
+Pardon me, what's the time right now? => tell_time | regex | 1
+Tell me the time => tell_time | regex | 1
+Give me the time now => tell_time | regex | 1
+Time? => tell_time | regex | 1
+Current time? => tell_time | regex | 1
+Do you know what time it is? => tell_time | regex | 1
+Have you got the time? => tell_time | regex | 1
+What's the time, please? => tell_time | regex | 1
+What time is it, please? => tell_time | regex | 1
+Hey, what's the time? => tell_time | regex | 1
+
+# Regex negative
+What is time? => tell_time | regex | 0
+What time? => tell_time | regex | 0
+How much time do we have? => tell_time | regex | 0
+What's the weather? => tell_time | regex | 0
+Is it time to go? => tell_time | regex | 0
+Time flies when you're having fun => tell_time | regex | 0
+What day is it? => tell_time | regex | 0
+Can you tell me the time? => tell_time | regex | 0
+
+# NLP positive
+What time is it? => tell_time | nlp | 1
+What time is it right now? => tell_time | nlp | 1
+What time is it, please? => tell_time | nlp | 1
+What's the time? => tell_time | nlp | 1
+What is the current time? => tell_time | nlp | 1
+Excuse me, what time is it? => tell_time | nlp | 1
+What time is it at the moment? => tell_time | nlp | 1
+
+# NLP negative
+What is time? => tell_time | nlp | 0
+Can you tell me the time? => tell_time | nlp | 0
+Tell me the time => tell_time | nlp | 0
+What day is it? => tell_time | nlp | 0
+What's the weather? => tell_time | nlp | 0
+Time please => tell_time | nlp | 0
+Give me the current time => tell_time | nlp | 0

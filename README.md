@@ -618,6 +618,7 @@ python -m parsely_dip.engine.stanza_service
 |----------|--------|-------------|
 | `/process_syntactic_parsing` | POST | Parse text, return words with POS/dependency/constituency |
 | `/debug_parse` | POST | Raw parse data for debugging sentence structure |
+| `/health` | GET | Token-free liveness probe (added 0.0.8) — returns 200 when the service is up |
 
 ### CLI Commands
 
@@ -685,8 +686,8 @@ Pattern files (`.patterns` and `_nlp.json`) are checked for changes on every `pa
 
 ### Security
 
-- Localhost only (127.0.0.1) — rejects non-local requests
-- Optional token auth via `STANZA_API_TOKEN` environment variable — enforced if set, skipped if not
+- Localhost only (127.0.0.1) — rejects non-local requests. **As of 0.0.8 this IP restriction is the security boundary**; the earlier `X-Stanza-Token` header auth was removed (it broke token-free liveness probes and added little over localhost-only).
+- `/health` is a **token-free public route** — any local caller (an orchestrator, a monitor) can check liveness without auth.
 
 ---
 
@@ -758,6 +759,18 @@ Every NLP pattern must be maximally specific. Include all words that disambiguat
 ---
 
 ## Configuration
+
+### Pattern Search Path (0.0.11)
+
+Patterns are loaded from an ordered, **most-specific-first** search path and merged. `check_regex` returns the first match, so earlier dirs win:
+
+1. **`$PARSELY_PATTERNS_DIR`** — an explicit env override, if set.
+2. **`<cwd>/patterns`** — the consuming app's own patterns (run from the app's root).
+3. **The package's vendored `patterns/`** — the shipped defaults, always the fallback.
+
+This lets an application **override or extend** a built-in intent without forking the package: drop a `.patterns` / `*_nlp.json` file in your own `patterns/` dir (or point `PARSELY_PATTERNS_DIR` at it) and it layers on top of the defaults. Files still hot-reload on mtime change across all layers.
+
+> Note: app-specific *triggers that aren't pure intent parsing* (e.g. a "search the web for …" regex routed to a multi-engine pipeline) are best kept in the consuming app's layer, not added to the package — keeps parsely generic and avoids reinstalls for app features.
 
 ### .env
 
@@ -917,6 +930,10 @@ This gives you properties that software alone cannot: no filesystem, no writable
 Linguists and NLP researchers who understand constituency trees, dependency relations, and POS tags. You can run commands and follow instructions, but you should not have to debug import errors or port conflicts. PARSELY-DIP tells you what's wrong and how to fix it.
 
 ## Status
+
+v0.0.11 — Packaging fix + layered pattern search + input normalization. (1) **Packaging:** the wheel was dropping the runtime data files, so an installed copy loaded **zero patterns and matched nothing** — `[tool.setuptools.package-data]` now ships `patterns/*.patterns` and `*.json`. (2) **Layered pattern search:** patterns load from an ordered, most-specific-first search path — `$PARSELY_PATTERNS_DIR` (env override) > `<cwd>/patterns` (the consuming app's own) > the package's vendored defaults — and are merged, so a project can override or extend a built-in intent without forking while the shipped defaults remain the fallback. (3) **Input normalization:** `parse()` folds smart quotes/apostrophes (U+2019, U+201C/D, …) to ASCII so patterns written with `'`/`"` still match auto-curled input ("what's"). (4) `tell_time` returns randomized natural phrasings ("It's 8:49 PM.") rather than a bare 24-hour string. (Version reconciled: `pyproject` and `__version__` are both 0.0.11.)
+
+v0.0.8 — Stanza service is **localhost-only**; the `X-Stanza-Token` header auth was removed in favor of the 127.0.0.1 IP restriction as the security boundary, and a **token-free public `/health`** route was added for programmatic liveness checks.
 
 v0.0.7 — `intents/scrum.py` demo no longer connects to an external SQLite DB; returns a hard-coded mock card instead. The demo's job is to show intent registration, not to query any specific project's data. Also tightens the bare `time` pattern with an end-of-string anchor so it no longer matches "time" as a substring inside longer queries.
 

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "parsely-dip"
-version = "0.0.8"
+version = "0.0.11"
 description = "PARSELY-DIP: Deterministic Intent Parser — RegEx and NLP pipeline for intent recognition"
 readme = "README.md"
 license = {text = "Proprietary"}
@@ -33,3 +33,11 @@ parsely = "parsely_dip.cli.main:cli"
 
 [project.urls]
 Homepage = "https://github.com/gbutiri/parsely-dip"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+# Ship the data files the engine loads at runtime — these were being dropped from the
+# wheel, so parse() loaded 0 patterns and matched nothing. (#1151)
+[tool.setuptools.package-data]
+parsely_dip = ["patterns/*.patterns", "patterns/*.json", "patterns/**/*.patterns", "patterns/**/*.json"]
